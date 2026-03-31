@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Endurance Lab — Tableau de bord sportif</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;600;700;900&family=Barlow:wght@300;400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <span class="logo-icon">⬡</span>
+    <span class="logo-text">ENDURANCE<br><em>LAB</em></span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#" class="nav-item active" data-page="dashboard"><span class="nav-icon">◈</span>Dashboard</a></li>
+    <li class="nav-section">SPORTS</li>
+    <li><a href="#" class="nav-item" data-page="course"><span class="nav-icon sport-run">⬤</span>Course Route</a></li>
+    <li><a href="#" class="nav-item" data-page="natation"><span class="nav-icon sport-swim">⬤</span>Natation</a></li>
+    <li><a href="#" class="nav-item" data-page="velo"><span class="nav-icon sport-bike">⬤</span>Vélo</a></li>
+    <li><a href="#" class="nav-item" data-page="trail"><span class="nav-icon sport-trail">⬤</span>Trail</a></li>
+    <li><a href="#" class="nav-item" data-page="cross"><span class="nav-icon sport-cross">⬤</span>Cross Country</a></li>
+    <li class="nav-section">MULTI-SPORTS</li>
+    <li><a href="#" class="nav-item" data-page="triathlon"><span class="nav-icon sport-tri">⬡</span>Triathlon</a></li>
+    <li><a href="#" class="nav-item" data-page="duathlon"><span class="nav-icon sport-du">⬡</span>Duathlon</a></li>
+    <li><a href="#" class="nav-item" data-page="autres"><span class="nav-icon">◇</span>Autres sports</a></li>
+    <li class="nav-section">DONNÉES</li>
+    <li><a href="#" class="nav-item" data-page="physio"><span class="nav-icon">◇</span>Physio & Perf</a></li>
+    <li><a href="#" class="nav-item" data-page="materiel"><span class="nav-icon">◈</span>Matériel</a></li>
+    <li><a href="#" class="nav-item" data-page="planning"><span class="nav-icon">▣</span>Planning</a></li>
+    <li><a href="#" class="nav-item" data-page="calendrier"><span class="nav-icon">▣</span>Calendrier</a></li>
+  </ul>
+  <div class="sidebar-footer">
+    <button class="btn-export" onclick="exportData()">↓ Exporter</button>
+    <button class="btn-import" onclick="document.getElementById('importFile').click()">↑ Importer</button>
+    <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+  </div>
+</nav>
+
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">☰</button>
+
+<main class="main-content" id="mainContent">
+
+  <!-- DASHBOARD -->
+  <section class="page active" id="page-dashboard">
+    <div class="page-header">
+      <h1>Dashboard <span class="year-badge" id="currentYear"></span></h1>
+      <p class="page-sub">Vue d'ensemble de ta saison</p>
+    </div>
+    <div class="dashboard-grid">
+      <div class="dash-card" id="dash-stats"></div>
+      <div class="dash-card" id="dash-recent"></div>
+      <div class="dash-card" id="dash-physio"></div>
+      <div class="dash-card" id="dash-materiel-alert"></div>
+    </div>
+  </section>
+
+  <!-- SPORT PAGES -->
+  <section class="page" id="page-course">
+    <div class="page-header sport-header run">
+      <h1><span class="sport-badge">COURSE ROUTE</span></h1>
+      <button class="btn-primary" onclick="openRaceModal('course')">+ Ajouter</button>
+    </div>
+    <div class="physio-bar" id="physio-course"></div>
+    <div class="races-table-wrap" id="races-course"></div>
+  </section>
+
+  <section class="page" id="page-natation">
+    <div class="page-header sport-header swim">
+      <h1><span class="sport-badge">NATATION</span></h1>
+      <button class="btn-primary" onclick="openRaceModal('natation')">+ Ajouter</button>
+    </div>
+    <div class="physio-bar" id="physio-natation"></div>
+    <div class="races-table-wrap" id="races-natation"></div>
+  </section>
+
+  <section class="page" id="page-velo">
+    <div class="page-header sport-header bike">
+      <h1><span class="sport-badge">VÉLO</span></h1>
+      <button class="btn-primary" onclick="openRaceModal('velo')">+ Ajouter</button>
+    </div>
+    <div class="physio-bar" id="physio-velo"></div>
+    <div class="races-table-wrap" id="races-velo"></div>
+  </section>
+
+  <section class="page" id="page-trail">
+    <div class="page-header sport-header trail">
+      <h1><span class="sport-badge">TRAIL</span></h1>
+      <button class="btn-primary" onclick="openRaceModal('trail')">+ Ajouter</button>
+    </div>
+    <div class="physio-bar" id="physio-trail"></div>
+    <div class="races-table-wrap" id="races-trail"></div>
+  </section>
+
+  <section class="page" id="page-cross">
+    <div class="page-header sport-header cross">
+      <h1><span class="sport-badge">CROSS COUNTRY</span></h1>
+      <button class="btn-primary" onclick="openRaceModal('cross')">+ Ajouter</button>
+    </div>
+    <div class="physio-bar" id="physio-cross"></div>
+    <div class="races-table-wrap" id="races-cross"></div>
+  </section>
+
+  <section class="page" id="page-autres">
+    <div class="page-header sport-header autres">
+      <h1><span class="sport-badge">AUTRES SPORTS</span></h1>
+      <button class="btn-primary" onclick="openRaceModal('autres')">+ Ajouter</button>
+    </div>
+    <div class="races-table-wrap" id="races-autres"></div>
+  </section>
+
+  <!-- TRIATHLON -->
+  <section class="page" id="page-triathlon">
+    <div class="page-header sport-header tri">
+      <h1><span class="sport-badge">TRIATHLON</span></h1>
+      <button class="btn-primary" onclick="openMultiModal('triathlon')">+ Ajouter une course</button>
+    </div>
+    <div class="physio-bar" id="physio-triathlon"></div>
+    <div class="races-table-wrap" id="races-triathlon"></div>
+  </section>
+
+  <!-- DUATHLON -->
+  <section class="page" id="page-duathlon">
+    <div class="page-header sport-header du">
+      <h1><span class="sport-badge">DUATHLON</span></h1>
+      <button class="btn-primary" onclick="openMultiModal('duathlon')">+ Ajouter une course</button>
+    </div>
+    <div class="races-table-wrap" id="races-duathlon"></div>
+  </section>
+
+  <!-- PHYSIO -->
+  <section class="page" id="page-physio">
+    <div class="page-header">
+      <h1>Physio & Performances</h1>
+      <button class="btn-primary" onclick="openPhysioModal()">+ Nouvelle mesure</button>
+    </div>
+    <div class="physio-grid" id="physio-grid"></div>
+  </section>
+
+  <!-- MATÉRIEL -->
+  <section class="page" id="page-materiel">
+    <div class="page-header">
+      <h1>Matériel</h1>
+      <button class="btn-primary" onclick="openMaterielModal()">+ Ajouter équipement</button>
+    </div>
+    <div class="materiel-grid" id="materiel-grid"></div>
+  </section>
+
+  <!-- PLANNING -->
+  <section class="page" id="page-planning">
+    <div class="page-header">
+      <div>
+        <h1>Planning <span class="year-badge" id="planningYear"></span></h1>
+        <p class="page-sub">Courses planifiées — non comptabilisées dans les stats</p>
+      </div>
+      <button class="btn-primary" onclick="openPlanModal()">+ Planifier une course</button>
+    </div>
+    <div id="planning-content"></div>
+  </section>
+
+  <!-- CALENDRIER -->
+  <section class="page" id="page-calendrier">
+    <div class="page-header">
+      <h1>Calendrier</h1>
+    </div>
+    <div id="calendar-wrap"></div>
+  </section>
+
+</main>
+
+<!-- ════ MODAL RACE (mono-sport) ════ -->
+<div class="modal-overlay" id="raceModalOverlay" onclick="closeModal('raceModal')">
+  <div class="modal" id="raceModal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h2 id="raceModalTitle">Nouvelle course</h2>
+      <button class="modal-close" onclick="closeModal('raceModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="raceForm">
+        <input type="hidden" id="raceId">
+        <input type="hidden" id="raceSport">
+        <div class="form-group" style="margin-bottom:16px">
+          <label>Statut</label>
+          <div class="status-toggle" id="raceStatusToggle">
+            <button type="button" class="status-btn active" data-val="done">✓ Passée / Résultat</button>
+            <button type="button" class="status-btn" data-val="planned">📅 Planifiée</button>
+          </div>
+          <input type="hidden" id="raceStatus" value="done">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nom de la course *</label>
+            <input type="text" id="raceName" required placeholder="Ex: Marathon de Bordeaux">
+          </div>
+          <div class="form-group">
+            <label>Date *</label>
+            <input type="date" id="raceDate" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Distance (km)</label>
+            <input type="number" id="raceDistance" step="0.1" placeholder="42.195">
+          </div>
+          <div class="form-group" id="denivField" style="display:none">
+            <label>Dénivelé + (m)</label>
+            <input type="number" id="raceDeniv" placeholder="1200">
+          </div>
+          <div class="form-group" id="autresSportField" style="display:none">
+            <label>Discipline</label>
+            <input type="text" id="raceAutresSport" placeholder="Ex: Escalade, Ski...">
+          </div>
+        </div>
+        <!-- Champs résultat -->
+        <div id="raceResultFields">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Temps (hh:mm:ss)</label>
+              <div class="time-input">
+                <input type="number" id="timeH" min="0" max="99" placeholder="00" class="time-part">
+                <span>:</span>
+                <input type="number" id="timeM" min="0" max="59" placeholder="00" class="time-part">
+                <span>:</span>
+                <input type="number" id="timeS" min="0" max="59" placeholder="00" class="time-part">
+              </div>
+            </div>
+            <div class="form-group" id="swimTimeField" style="display:none">
+              <label>Allure nage (/100m)</label>
+              <div class="time-input">
+                <input type="number" id="swimM" min="0" max="9" placeholder="1" class="time-part">
+                <span>:</span>
+                <input type="number" id="swimS" min="0" max="59" placeholder="30" class="time-part">
+              </div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Clas. général</label>
+              <input type="number" id="raceRankGeneral" placeholder="42">
+            </div>
+            <div class="form-group">
+              <label>Clas. catégorie</label>
+              <input type="number" id="raceRankCat" placeholder="5">
+            </div>
+            <div class="form-group">
+              <label>Nb participants</label>
+              <input type="number" id="raceParticipants" placeholder="500">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Note</label>
+            <div class="star-rating" id="starRating">
+              <span class="star" data-val="1">★</span><span class="star" data-val="2">★</span>
+              <span class="star" data-val="3">★</span><span class="star" data-val="4">★</span>
+              <span class="star" data-val="5">★</span>
+            </div>
+            <input type="hidden" id="raceNote" value="0">
+          </div>
+          <div class="form-group">
+            <label>Météo</label>
+            <div class="weather-picker" id="weatherPicker">
+              <button type="button" class="weather-btn" data-val="☀️">☀️</button>
+              <button type="button" class="weather-btn" data-val="⛅">⛅</button>
+              <button type="button" class="weather-btn" data-val="☁️">☁️</button>
+              <button type="button" class="weather-btn" data-val="🌧️">🌧️</button>
+              <button type="button" class="weather-btn" data-val="⛈️">⛈️</button>
+              <button type="button" class="weather-btn" data-val="🌬️">🌬️</button>
+              <button type="button" class="weather-btn" data-val="❄️">❄️</button>
+            </div>
+            <input type="hidden" id="raceWeather" value="">
+          </div>
+        </div>
+        <!-- Champs planification -->
+        <div id="raceGoalFields" style="display:none">
+          <div class="form-group">
+            <label>Objectif temps</label>
+            <div class="time-input">
+              <input type="number" id="goalH" min="0" max="99" placeholder="00" class="time-part">
+              <span>:</span>
+              <input type="number" id="goalM" min="0" max="59" placeholder="00" class="time-part">
+              <span>:</span>
+              <input type="number" id="goalS" min="0" max="59" placeholder="00" class="time-part">
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label id="commentLabel">Commentaire</label>
+          <textarea id="raceComment" rows="3" placeholder="Conditions, ressenti..."></textarea>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" onclick="closeModal('raceModal')">Annuler</button>
+          <button type="submit" class="btn-primary">Enregistrer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ════ MODAL TRIATHLON / DUATHLON ════ -->
+<div class="modal-overlay" id="multiModalOverlay" onclick="closeModal('multiModal')">
+  <div class="modal modal-wide" id="multiModal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h2 id="multiModalTitle">Nouvelle course</h2>
+      <button class="modal-close" onclick="closeModal('multiModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="multiForm">
+        <input type="hidden" id="multiId">
+        <input type="hidden" id="multiSport">
+        <div class="form-group" style="margin-bottom:16px">
+          <label>Statut</label>
+          <div class="status-toggle" id="multiStatusToggle">
+            <button type="button" class="status-btn active" data-val="done">✓ Passée / Résultat</button>
+            <button type="button" class="status-btn" data-val="planned">📅 Planifiée</button>
+          </div>
+          <input type="hidden" id="multiStatus" value="done">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nom de la course *</label>
+            <input type="text" id="multiName" required placeholder="Ex: Ironman 70.3 Nice">
+          </div>
+          <div class="form-group">
+            <label>Date *</label>
+            <input type="date" id="multiDate" required>
+          </div>
+        </div>
+        <div id="triathlonFormatRow" style="display:none;margin-bottom:14px">
+          <label class="form-label-small">Format</label>
+          <div class="format-picker" id="triathlonFormat">
+            <button type="button" class="format-btn" data-val="S">Sprint</button>
+            <button type="button" class="format-btn" data-val="O">Olympique</button>
+            <button type="button" class="format-btn" data-val="M">70.3 / M</button>
+            <button type="button" class="format-btn" data-val="L">Ironman</button>
+            <button type="button" class="format-btn active" data-val="X">Autre</button>
+          </div>
+          <input type="hidden" id="multiFormat" value="X">
+        </div>
+        <!-- Segments dynamiques -->
+        <div id="multiSegments"></div>
+        <!-- Résultats -->
+        <div id="multiResultFields">
+          <div class="divider"></div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Temps total</label>
+              <div class="time-input">
+                <input type="number" id="multiTotalH" min="0" placeholder="00" class="time-part">
+                <span>:</span>
+                <input type="number" id="multiTotalM" min="0" max="59" placeholder="00" class="time-part">
+                <span>:</span>
+                <input type="number" id="multiTotalS" min="0" max="59" placeholder="00" class="time-part">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Clas. général</label>
+              <input type="number" id="multiRankGeneral" placeholder="42">
+            </div>
+            <div class="form-group">
+              <label>Clas. catégorie</label>
+              <input type="number" id="multiRankCat" placeholder="5">
+            </div>
+            <div class="form-group">
+              <label>Nb participants</label>
+              <input type="number" id="multiParticipants" placeholder="500">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Note</label>
+            <div class="star-rating" id="multiStarRating">
+              <span class="star2" data-val="1">★</span><span class="star2" data-val="2">★</span>
+              <span class="star2" data-val="3">★</span><span class="star2" data-val="4">★</span>
+              <span class="star2" data-val="5">★</span>
+            </div>
+            <input type="hidden" id="multiNote" value="0">
+          </div>
+          <div class="form-group">
+            <label>Météo</label>
+            <div class="weather-picker" id="multiWeatherPicker">
+              <button type="button" class="weather-btn2" data-val="☀️">☀️</button>
+              <button type="button" class="weather-btn2" data-val="⛅">⛅</button>
+              <button type="button" class="weather-btn2" data-val="☁️">☁️</button>
+              <button type="button" class="weather-btn2" data-val="🌧️">🌧️</button>
+              <button type="button" class="weather-btn2" data-val="⛈️">⛈️</button>
+              <button type="button" class="weather-btn2" data-val="🌬️">🌬️</button>
+              <button type="button" class="weather-btn2" data-val="❄️">❄️</button>
+            </div>
+            <input type="hidden" id="multiWeather" value="">
+          </div>
+        </div>
+        <!-- Objectif si planifiée -->
+        <div id="multiGoalFields" style="display:none">
+          <div class="form-group">
+            <label>Objectif temps total</label>
+            <div class="time-input">
+              <input type="number" id="multiGoalH" min="0" placeholder="00" class="time-part">
+              <span>:</span>
+              <input type="number" id="multiGoalM" min="0" max="59" placeholder="00" class="time-part">
+              <span>:</span>
+              <input type="number" id="multiGoalS" min="0" max="59" placeholder="00" class="time-part">
+            </div>
+          </div>
+        </div>
+        <div class="form-group" style="margin-top:14px">
+          <label>Commentaire</label>
+          <textarea id="multiComment" rows="3" placeholder="Ressenti, conditions..."></textarea>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" onclick="closeModal('multiModal')">Annuler</button>
+          <button type="submit" class="btn-primary">Enregistrer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ════ MODAL PLAN ROUTE ════ -->
+<div class="modal-overlay" id="planModalOverlay" onclick="closeModal('planModal')">
+  <div class="modal modal-small" id="planModal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Planifier une course</h2>
+      <button class="modal-close" onclick="closeModal('planModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:12px;color:var(--text2);margin-bottom:16px">Choisir le sport pour accéder au formulaire de planification.</p>
+      <div class="form-group">
+        <label>Sport</label>
+        <select id="planSport">
+          <option value="course">Course route</option>
+          <option value="trail">Trail</option>
+          <option value="natation">Natation</option>
+          <option value="velo">Vélo</option>
+          <option value="cross">Cross Country</option>
+          <option value="triathlon">Triathlon</option>
+          <option value="duathlon">Duathlon</option>
+          <option value="autres">Autres</option>
+        </select>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" onclick="closeModal('planModal')">Annuler</button>
+        <button type="button" class="btn-primary" onclick="routePlanModal()">Suivant →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ MODAL PHYSIO ════ -->
+<div class="modal-overlay" id="physioModalOverlay" onclick="closeModal('physioModal')">
+  <div class="modal" id="physioModal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Mesure physiologique</h2>
+      <button class="modal-close" onclick="closeModal('physioModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="physioForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Date *</label>
+            <input type="date" id="physioDate" required>
+          </div>
+          <div class="form-group">
+            <label>Sport</label>
+            <select id="physioSport">
+              <option value="course">Course / Run</option>
+              <option value="natation">Natation</option>
+              <option value="velo">Vélo</option>
+            </select>
+          </div>
+        </div>
+        <div id="physio-course-fields" class="physio-sport-fields">
+          <div class="form-row">
+            <div class="form-group"><label>VMA (km/h)</label><input type="number" id="physioVMA" step="0.1" placeholder="18.5"></div>
+            <div class="form-group"><label>FC max (bpm)</label><input type="number" id="physioFCmax" placeholder="185"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Allure seuil (/km)</label>
+              <div class="time-input">
+                <input type="number" id="physioSeuilM" min="0" max="9" placeholder="3" class="time-part"><span>:</span>
+                <input type="number" id="physioSeuilS" min="0" max="59" placeholder="45" class="time-part">
+              </div>
+            </div>
+            <div class="form-group"><label>Poids (kg)</label><input type="number" id="physioPoids" step="0.1" placeholder="70"></div>
+          </div>
+        </div>
+        <div id="physio-natation-fields" class="physio-sport-fields" style="display:none">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Vitesse critique (/100m)</label>
+              <div class="time-input">
+                <input type="number" id="physioVCm" min="0" max="9" placeholder="1" class="time-part"><span>:</span>
+                <input type="number" id="physioVCs" min="0" max="59" placeholder="30" class="time-part">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Sprint max (/100m)</label>
+              <div class="time-input">
+                <input type="number" id="physioVSmaxM" min="0" max="9" placeholder="1" class="time-part"><span>:</span>
+                <input type="number" id="physioVSmaxS" min="0" max="59" placeholder="10" class="time-part">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="physio-velo-fields" class="physio-sport-fields" style="display:none">
+          <div class="form-row">
+            <div class="form-group"><label>FTP (W)</label><input type="number" id="physioFTP" placeholder="250"></div>
+            <div class="form-group"><label>PMA (W)</label><input type="number" id="physioPMA" placeholder="380"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Poids (kg)</label><input type="number" id="physioPoidsVelo" step="0.1" placeholder="70"></div>
+            <div class="form-group"><label>W/kg FTP</label><input type="number" id="physioWkg" step="0.01" readonly></div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Notes</label>
+          <textarea id="physioNotes" rows="3" placeholder="Test sur piste, fatigue..."></textarea>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" onclick="closeModal('physioModal')">Annuler</button>
+          <button type="submit" class="btn-primary">Enregistrer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ════ MODAL MATÉRIEL ════ -->
+<div class="modal-overlay" id="materielModalOverlay" onclick="closeModal('materielModal')">
+  <div class="modal" id="materielModal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h2 id="materielModalTitle">Équipement</h2>
+      <button class="modal-close" onclick="closeModal('materielModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="materielForm">
+        <input type="hidden" id="materielId">
+        <div class="form-row">
+          <div class="form-group"><label>Nom *</label><input type="text" id="materielNom" required placeholder="Ex: Vélo Specialized"></div>
+          <div class="form-group">
+            <label>Catégorie</label>
+            <select id="materielCat">
+              <option value="velo">Vélo</option>
+              <option value="chaussures-run">Chaussures running</option>
+              <option value="chaussures-trail">Chaussures trail</option>
+              <option value="chaussures-cross">Chaussures cross</option>
+              <option value="combinaison">Combinaison natation</option>
+              <option value="casque">Casque vélo</option>
+              <option value="composant">Composant vélo</option>
+              <option value="autre">Autre</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Mise en service</label><input type="date" id="materielDate"></div>
+          <div class="form-group"><label>Km actuels</label><input type="number" id="materielKm" value="0"></div>
+        </div>
+        <div class="form-group"><label>Alerte remplacement (km) — 0 = désactivée</label><input type="number" id="materielAlerte" value="0"></div>
+        <div class="form-group"><label>Notes</label><textarea id="materielNotes" rows="2" placeholder="Taille, coloris..."></textarea></div>
+        <div id="composantsSection" style="display:none">
+          <h3 class="sub-section-title">Historique entretien</h3>
+          <div id="composantsList"></div>
+          <button type="button" class="btn-secondary small" style="margin-top:8px" onclick="openComposantFromMateriel()">+ Ajouter entretien</button>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" onclick="closeModal('materielModal')">Annuler</button>
+          <button type="submit" class="btn-primary">Enregistrer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ════ MODAL RACE DETAIL ════ -->
+<div class="modal-overlay" id="raceDetailOverlay" onclick="closeModal('raceDetail')">
+  <div class="modal modal-wide" id="raceDetail" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h2 id="raceDetailTitle">Détail</h2>
+      <button class="modal-close" onclick="closeModal('raceDetail')">✕</button>
+    </div>
+    <div class="modal-body" id="raceDetailBody"></div>
+  </div>
+</div>
+
+<!-- ════ MODAL COMPOSANT ════ -->
+<div class="modal-overlay" id="composantModalOverlay" onclick="closeModal('composantModal')">
+  <div class="modal" id="composantModal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Entretien / Remplacement</h2>
+      <button class="modal-close" onclick="closeModal('composantModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="composantForm">
+        <input type="hidden" id="composantMaterielId">
+        <div class="form-row">
+          <div class="form-group"><label>Type *</label><input type="text" id="composantType" required placeholder="Ex: Changement cassette..."></div>
+          <div class="form-group"><label>Date</label><input type="date" id="composantDate"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Km au moment</label><input type="number" id="composantKm" placeholder="3500"></div>
+          <div class="form-group"><label>Prochain entretien dans (km)</label><input type="number" id="composantNextKm" placeholder="1000"></div>
+        </div>
+        <div class="form-group"><label>Notes</label><textarea id="composantNotes" rows="2" placeholder="Marque, ref, coût..."></textarea></div>
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" onclick="closeModal('composantModal')">Annuler</button>
+          <button type="submit" class="btn-primary">Enregistrer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ════ CONFIRM ════ -->
+<div class="modal-overlay" id="confirmOverlay" onclick="closeModal('confirm')">
+  <div class="modal modal-small" id="confirm" onclick="event.stopPropagation()">
+    <div class="modal-header"><h2>Confirmer la suppression</h2></div>
+    <div class="modal-body">
+      <p style="margin-bottom:16px">Cette action est irréversible.</p>
+      <div class="form-actions">
+        <button class="btn-secondary" onclick="closeModal('confirm')">Annuler</button>
+        <button class="btn-danger" id="confirmDeleteBtn">Supprimer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
