@@ -4,8 +4,6 @@
 // CONFIG
 // ══════════════════════════════════════════════
 
-const STORAGE_KEY = 'endurancelab_v3';
-
 // Sports simples
 const SPORT_CONFIG = {
   'course':   { label: 'Course Route',   color: '#ff6b35', class: 'run',    hasTrail: false },
@@ -61,17 +59,39 @@ const MONTHS_FR = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','A
 // ══════════════════════════════════════════════
 
 let db = { races: [], physio: [], materiel: [], composants: [] };
+let _appReady = false;
+
+// Called by firebase.js when remote data arrives
+window.applyDataToApp = function(data) {
+  db = { races: [], physio: [], materiel: [], composants: [], ...data };
+  if (_appReady) refreshCurrentPage();
+};
+
+function saveDB() {
+  // Save to Firestore via firebase.js (debounced)
+  if (typeof window._scheduleSave === 'function') {
+    window._scheduleSave({ ...db });
+  }
+  // Also cache locally for instant UI
+  try { localStorage.setItem('elcache_local', JSON.stringify(db)); } catch(e) {}
+}
 
 function loadDB() {
+  // Preload from local cache while Firebase loads
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem('elcache_local');
     if (raw) db = { races: [], physio: [], materiel: [], composants: [], ...JSON.parse(raw) };
   } catch(e) {}
 }
 
-function saveDB() {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(db)); }
-  catch(e) { toast('Erreur de sauvegarde', true); }
+function refreshCurrentPage() {
+  if (currentPage === 'dashboard') renderDashboard();
+  else if (SPORT_CONFIG[currentPage]) renderSportPage(currentPage);
+  else if (MULTI_CONFIG[currentPage]) renderMultiPage(currentPage);
+  else if (currentPage === 'physio') renderPhysioPage();
+  else if (currentPage === 'materiel') renderMaterielPage();
+  else if (currentPage === 'planning') renderPlanningPage();
+  else if (currentPage === 'calendrier') renderCalendar();
 }
 
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
@@ -1395,4 +1415,14 @@ document.addEventListener('keydown', function(e) {
   if (e.key==='Escape') document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
 });
 
+// Update user avatar initial when name changes
+const nameObs = new MutationObserver(() => {
+  const name = document.getElementById('userDisplayName')?.textContent || '?';
+  const av = document.getElementById('userAvatar');
+  if (av) av.textContent = name.charAt(0).toUpperCase();
+});
+const nameEl = document.getElementById('userDisplayName');
+if (nameEl) nameObs.observe(nameEl, { childList: true, characterData: true, subtree: true });
+
 navigate('dashboard');
+_appReady = true;
