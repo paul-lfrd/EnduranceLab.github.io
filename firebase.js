@@ -310,6 +310,7 @@ function setAuthLoading(loading) {
 // ══════════════════════════════════════════════
 // EXPORTS (accessed globally from app.js)
 // ══════════════════════════════════════════════
+const getCurrentUser = () => currentUser;
 
 export {
   handleLogin,
@@ -317,5 +318,5 @@ export {
   handleLogout,
   handleResetPassword,
   scheduleSave,
-  getCurrentUser: () => currentUser
+  getCurrentUser 
 };
