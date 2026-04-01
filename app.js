@@ -133,7 +133,10 @@ function toggleSidebar() { document.getElementById('sidebar').classList.toggle('
 function isPlanned(r) { return r.status === 'planned'; }
 function isDone(r) { return !isPlanned(r); }
 
-function todayStr() { return new Date().toISOString().split('T')[0]; }
+function todayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
 
 function daysUntil(dateStr) {
   const today = new Date(); today.setHours(0,0,0,0);
