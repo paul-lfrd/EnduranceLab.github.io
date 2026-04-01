@@ -251,6 +251,13 @@ function scheduleSave(data) {
   }, 800); // debounce 800ms
 }
 
+function saveDB() {
+  if (typeof window._scheduleSave === 'function') {
+    window._scheduleSave({ ...db });
+  }
+  try { localStorage.setItem('elcache_local', JSON.stringify(db)); } catch(e) {}
+}
+
 // ══════════════════════════════════════════════
 // LOCAL CACHE (fallback offline)
 // ══════════════════════════════════════════════
